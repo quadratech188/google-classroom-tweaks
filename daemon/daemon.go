@@ -88,6 +88,15 @@ func waitForFileAndMove(sourceFilePath, fullDestinationPath string) MessageToExt
 		return MessageToExtension{Status: "error", Message: fmt.Sprintf("File did not appear or was empty: %s", sourceFilePath)}
 	}
 
+	// Check if destination file already exists
+	_, destErr := os.Stat(fullDestinationPath)
+	if destErr == nil { // Destination file exists
+		return MessageToExtension{Status: "error", Message: fmt.Sprintf("File already exists at destination: %s", fullDestinationPath)}
+	} else if !os.IsNotExist(destErr) {
+		// Some other error checking destination file status
+		return MessageToExtension{Status: "error", Message: fmt.Sprintf("Error checking destination file status: %v", destErr)}
+	}
+
 	// Ensure destination directory exists
 	destinationDir := filepath.Dir(fullDestinationPath)
 	if err := os.MkdirAll(destinationDir, 0755); err != nil {
