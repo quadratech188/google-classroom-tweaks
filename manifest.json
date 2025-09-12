@@ -11,7 +11,8 @@
     "cookies",
     "webRequest",
     "storage",
-    "nativeMessaging"
+    "nativeMessaging",
+    "notifications"
   ],
   "host_permissions": [
     "*://drive.usercontent.google.com/*",

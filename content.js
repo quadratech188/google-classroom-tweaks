@@ -68,10 +68,18 @@ function debounce(func, wait) {
 }
 
 function processPage() {
-  const containers = document.querySelectorAll('div.luto0c:not(.has-download-button)');
+  const containers = document.querySelectorAll('div.luto0c:not(.has-download-button), div.t2wIBc:not(.has-download-button)');
   containers.forEach(container => {
     container.classList.add('has-download-button');
-    const link = container.querySelector('a.VkhHKd.e7EEH.nQaZq');
+    let link = null;
+    const allElements = container.querySelectorAll('*'); // Select all descendant elements
+    for (const element of allElements) {
+      if (element.hasAttribute('href')) {
+        link = element;
+        break;
+      }
+    }
+
     if (!link) { return; }
 
     const button = document.createElement('button');
@@ -97,7 +105,8 @@ processPage();
 
 // Listener for messages from popup.js
 browser.runtime.onMessage.addListener((request, sender, sendResponse) => {
-  if (request.action !== 'getClassroomName') { return; }
-  const name = get_classroom_name();
-  sendResponse({ name: name });
+  if (request.action === 'getClassroomName') {
+    const name = get_classroom_name();
+    sendResponse({ name: name });
+  }
 });

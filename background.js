@@ -37,6 +37,14 @@ browser.downloads.onCreated.addListener((downloadItem) => {
     });
     port.onMessage.addListener(response => {
       console.log("Daemon response:", response);
+      if (response.status === 'error') {
+        browser.notifications.create({
+          "type": "basic",
+          "iconUrl": browser.runtime.getURL("icons/icon-32.png"),
+          "title": "GCT Download Error",
+          "message": response.message
+        });
+      }
     });
     port.onDisconnect.addListener(() => {
       if (port.error) {
