@@ -91,7 +91,11 @@ func waitForFileAndMove(sourceFilePath, fullDestinationPath string) MessageToExt
 	// Check if destination file already exists
 	_, destErr := os.Stat(fullDestinationPath)
 	if destErr == nil { // Destination file exists
-		return MessageToExtension{Status: "error", Message: fmt.Sprintf("File already exists at destination: %s", fullDestinationPath)}
+		// Remove the downloaded file
+		if err := os.Remove(sourceFilePath); err != nil {
+			return MessageToExtension{Status: "error", Message: fmt.Sprintf("Destination file exists, but failed to remove downloaded file: %v", err)}
+		}
+		return MessageToExtension{Status: "error", Message: fmt.Sprintf("File already exists at destination: %s. Download aborted.", fullDestinationPath)}
 	} else if !os.IsNotExist(destErr) {
 		// Some other error checking destination file status
 		return MessageToExtension{Status: "error", Message: fmt.Sprintf("Error checking destination file status: %v", destErr)}
