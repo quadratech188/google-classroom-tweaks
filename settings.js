@@ -1,12 +1,17 @@
 document.addEventListener('DOMContentLoaded', loadSettings);
 
 async function loadSettings() {
-    const data = await browser.storage.local.get([CLASSROOM_PATHS_STORAGE_KEY, DEFAULT_DOWNLOAD_PATH_STORAGE_KEY]);
-    const paths = data[CLASSROOM_PATHS_STORAGE_KEY] || {};
-    const defaultPath = data[DEFAULT_DOWNLOAD_PATH_STORAGE_KEY] || '';
+    try {
+        const data = await browser.storage.local.get([CLASSROOM_PATHS_STORAGE_KEY, DEFAULT_DOWNLOAD_PATH_STORAGE_KEY]);
+        const paths = data[CLASSROOM_PATHS_STORAGE_KEY] || {};
+        const defaultPath = data[DEFAULT_DOWNLOAD_PATH_STORAGE_KEY] || '';
 
-    renderClassroomList(paths);
-    document.getElementById('default-path-input').value = defaultPath; // Set default path input value
+        renderClassroomList(paths);
+        document.getElementById('default-path-input').value = defaultPath; // Set default path input value
+    } catch (e) {
+        console.error("Error loading settings:", e);
+        // Optionally, display an error message to the user
+    }
 }
 
 function renderClassroomList(paths) {
@@ -94,13 +99,13 @@ const saveDefaultPathButton = document.getElementById('save-default-path');
 
 saveDefaultPathButton.addEventListener('click', async () => {
     const path = defaultPathInput.value.trim();
+    if (!path) { return; } // Early return if path is empty
     await browser.storage.local.set({ [DEFAULT_DOWNLOAD_PATH_STORAGE_KEY]: path });
     alert('Default path saved!');
 });
 
 defaultPathInput.addEventListener('keydown', (e) => {
-    if (e.key === 'Enter') {
-        e.preventDefault();
-        saveDefaultPathButton.click();
-    }
+    if (e.key !== 'Enter') { return; } // Early return if not Enter key
+    e.preventDefault();
+    saveDefaultPathButton.click();
 });

@@ -18,18 +18,17 @@ function transformGoogleDriveUrl(originalUrlString) {
 
 function get_classroom_name() {
   const nameElement = document.getElementById('UGb2Qe'); // Use the provided ID
-  const name = nameElement ? nameElement.textContent.trim() : 'Unknown Classroom';
-  console.log("Detected Classroom Name:", name);
-  return name;
+  if (!nameElement) { return 'Unknown Classroom'; }
+  return nameElement.textContent.trim();
 }
 
 // showPathDialog function is removed and replaced by createPathInputDialog from common_ui.js
 
-function triggerDownload(downloadUrl, classroomId) {
+function triggerDownload(downloadUrl, destinationFolderPath) {
   browser.runtime.sendMessage({
-    action: 'openTab',
-    url: downloadUrl,
-    classroomId: classroomId
+    action: 'createDownload',
+    downloadUrl: downloadUrl,
+    destinationFolderPath: destinationFolderPath
   });
 }
 
@@ -42,19 +41,20 @@ async function onDownloadClick(downloadUrl, classroomId) {
 
   if (paths[classroomId] && paths[classroomId].path) { // Check if path exists in the object
     console.log(`Path found for ${classroomId} (${paths[classroomId].name}). Triggering download.`);
-    triggerDownload(downloadUrl, classroomId);
-  } else {
-    console.log(`Path not found for ${classroomId}. Showing dialog.`);
-    try {
-      // Call the common UI function to create and manage the dialog
-      const savedPath = await createPathInputDialog(classroomId, classroomName);
-      // If dialog resolves, it means path was saved, so retry download
-      console.log(`Dialog resolved with path: ${savedPath}. Retrying download.`);
-      triggerDownload(downloadUrl, classroomId);
-    } catch (error) {
-      console.log(`Dialog cancelled or error: ${error.message}`);
-      // Do not trigger download if dialog was cancelled
-    }
+    triggerDownload(downloadUrl, paths[classroomId].path); // Use stored path
+    return;
+  }
+
+  console.log(`Path not found for ${classroomId}. Showing dialog.`);
+  try {
+    // Call the common UI function to create and manage the dialog
+    const savedPath = await createPathInputDialog(classroomId, classroomName);
+    // If dialog resolves, it means path was saved, so retry download
+    console.log(`Dialog resolved with path: ${savedPath}. Retrying download.`);
+    triggerDownload(downloadUrl, savedPath); // Use saved path
+  } catch (error) {
+    console.log(`Dialog cancelled or error: ${error.message}`);
+    // Do not trigger download if dialog was cancelled
   }
 }
 
@@ -72,21 +72,21 @@ function processPage() {
   containers.forEach(container => {
     container.classList.add('has-download-button');
     const link = container.querySelector('a.VkhHKd.e7EEH.nQaZq');
-    if (link) {
-      const button = document.createElement('button');
-      button.textContent = 'Download';
-      button.classList.add('my-custom-button');
+    if (!link) { return; }
 
-      button.addEventListener('click', () => {
-        const downloadUrl = transformGoogleDriveUrl(link.href);
-        const match = window.location.pathname.match(/\/c\/([a-zA-Z0-9_-]+)/);
-        const classroomId = match ? match[1] : null;
-        if (classroomId) {
-          onDownloadClick(downloadUrl, classroomId);
-        }
-      });
-      container.appendChild(button);
-    }
+    const button = document.createElement('button');
+    button.textContent = 'Download';
+    button.classList.add('my-custom-button');
+
+    button.addEventListener('click', () => {
+      const downloadUrl = transformGoogleDriveUrl(link.href);
+      const match = window.location.pathname.match(/\/c\/([a-zA-Z0-9_-]+)/);
+      const classroomId = match ? match[1] : null;
+      if (classroomId) {
+        onDownloadClick(downloadUrl, classroomId);
+      }
+    });
+    container.appendChild(button);
   });
 }
 
@@ -97,8 +97,7 @@ processPage();
 
 // Listener for messages from popup.js
 browser.runtime.onMessage.addListener((request, sender, sendResponse) => {
-  if (request.action === 'getClassroomName') {
-    const name = get_classroom_name();
-    sendResponse({ name: name });
-  }
+  if (request.action !== 'getClassroomName') { return; }
+  const name = get_classroom_name();
+  sendResponse({ name: name });
 });

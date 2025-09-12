@@ -2,7 +2,10 @@ async function createPathInputDialog(classroomId, classroomName) {
   return new Promise(async (resolve, reject) => {
     // Remove existing dialog if any
     const existingDialog = document.getElementById('gct-path-dialog');
-    if (existingDialog) { existingDialog.remove(); }
+    if (existingDialog) { 
+      console.warn("Path input dialog already open.");
+      return reject(new Error("Dialog already open."));
+    }
 
     const dialog = document.createElement('div');
     dialog.id = 'gct-path-dialog';
@@ -63,21 +66,22 @@ async function createPathInputDialog(classroomId, classroomName) {
 
     saveButton.addEventListener('click', async () => {
       const path = pathInput.value.trim();
-      if (path) {
-        const data = await browser.storage.local.get(CLASSROOM_PATHS_STORAGE_KEY);
-        const paths = data[CLASSROOM_PATHS_STORAGE_KEY] || {};
-        
-        // Store name and path as an object
-        paths[classroomId] = { name: classroomName, path: path };
-        
-        await browser.storage.local.set({ [CLASSROOM_PATHS_STORAGE_KEY]: paths });
-        
-        dialog.remove();
-        resolve(path); // Resolve with the saved path
-      } else {
+      if (!path) {
         // Optionally, show an error message in the dialog itself
         alert('Path cannot be empty.');
+        return; // Early return if path is empty
       }
+
+      const data = await browser.storage.local.get(CLASSROOM_PATHS_STORAGE_KEY);
+      const paths = data[CLASSROOM_PATHS_STORAGE_KEY] || {};
+      
+      // Store name and path as an object
+      paths[classroomId] = { name: classroomName, path: path };
+      
+      await browser.storage.local.set({ [CLASSROOM_PATHS_STORAGE_KEY]: paths });
+      
+      dialog.remove();
+      resolve(path); // Resolve with the saved path
     });
   });
 }
