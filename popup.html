@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>GCT Popup</title>
+    <style>
+        body { font-family: sans-serif; width: 300px; padding: 10px; margin: 0; }
+        h3 { margin-top: 0; color: #333; }
+        p { margin-bottom: 5px; font-size: 0.9em; }
+        input[type="text"] { width: calc(100% - 10px); padding: 5px; margin-bottom: 10px; border: 1px solid #ccc; border-radius: 3px; }
+        button { padding: 8px 15px; background-color: #007bff; color: white; border: none; border-radius: 3px; cursor: pointer; }
+        button:hover { background-color: #0056b3; }
+        .error { color: red; font-size: 0.8em; margin-top: 5px; }
+        .info { color: #666; font-size: 0.8em; margin-top: 5px; }
+    </style>
+</head>
+<body>
+    <h3 id="popup-title">Google Classroom Tweaks</h3>
+    <div id="classroom-info">
+        <p><strong>Classroom:</strong> <span id="classroom-name">Loading...</span></p>
+        <p><strong>ID:</strong> <span id="classroom-id">Loading...</span></p>
+        <p><strong>Current Path:</strong> <span id="current-path">Loading...</span></p>
+    </div>
+    <div id="path-editor">
+        <label for="new-path-input">New Path:</label>
+        <input type="text" id="new-path-input" placeholder="Enter absolute path">
+        <button id="save-path-btn">Save Path</button>
+        <p class="error" id="error-message"></p>
+        <p class="info" id="info-message"></p>
+    </div>
+    <div id="no-classroom-message" style="display: none;">
+        <p>Navigate to a Google Classroom page to manage its download path.</p>
+    </div>
+    <script src="constants.js"></script>
+    <script src="common_ui.js"></script>
+    <script src="popup.js"></script>
+</body>
+</html>

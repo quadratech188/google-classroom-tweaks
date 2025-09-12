@@ -1,0 +1,9 @@
+{
+  "name": "gct_download_manager",
+  "description": "Google Classroom Download Manager Daemon",
+  "path": "/home/quadratech/학업/대전과학고 2-2/정보과학 프로젝트/google-classroom-tweaks/daemon/daemon",
+  "type": "stdio",
+  "allowed_extensions": [
+    "gct-downloader@quadratech"
+  ]
+}

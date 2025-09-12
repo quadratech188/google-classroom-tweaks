@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Google Classroom Tweaks Settings</title>
+    <style>
+        body { font-family: sans-serif; margin: 20px; }
+        h1 { color: #333; }
+        #classroom-paths-list { margin-top: 20px; border: 1px solid #ccc; padding: 10px; border-radius: 5px; }
+        .classroom-entry { display: flex; align-items: center; padding: 8px 0; border-bottom: 1px solid #eee; }
+        .classroom-entry:last-child { border-bottom: none; }
+        .classroom-entry div { flex: 1; }
+        .classroom-entry .name { font-weight: bold; }
+        .classroom-entry .id { font-family: monospace; font-size: 0.9em; color: #666; }
+        .classroom-entry .path { font-family: monospace; font-size: 0.9em; color: #007bff; word-break: break-all; }
+        .classroom-entry .actions button { margin-left: 5px; padding: 5px 10px; cursor: pointer; }
+        .add-section { margin-top: 20px; padding-top: 15px; border-top: 1px solid #eee; }
+        .add-section input { width: 250px; margin-right: 10px; padding: 5px; }
+        .add-section button { padding: 5px 10px; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <h1>Google Classroom Tweaks Settings</h1>
+
+    <h2>Configured Classrooms</h2>
+    <div id="classroom-paths-list">
+        <p id="no-classrooms">No classrooms configured yet.</p>
+    </div>
+
+    <div class="add-section">
+        <h3>Add/Edit Classroom Manually</h3>
+        <p>Click the button to add a new classroom or update an existing one.</p>
+        <button id="add-classroom-btn">Add/Edit Classroom</button>
+    </div>
+
+    <div class="add-section">
+        <h3>Default Download Path</h3>
+        <p>This path will pre-fill the input for unknown classrooms.</p>
+        <label for="default-path-input">Default Path:</label>
+        <input type="text" id="default-path-input" placeholder="e.g., /home/user/Downloads/Classroom" size="40">
+        <button id="save-default-path">Save Default Path</button>
+    </div>
+
+    <script src="constants.js"></script>
+    <script src="common_ui.js"></script>
+    <script src="settings.js"></script>
+</body>
+</html>

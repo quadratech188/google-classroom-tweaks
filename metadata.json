@@ -1,0 +1,17 @@
+{
+  "categories": {
+    "firefox": ["other"]
+  },
+  "summary": {
+    "en-US": "Enhances Google Classroom by providing direct download links and managing downloaded files."
+  },
+  "version": {
+    "license": "MPL-2.0"
+  },
+  "homepage": {
+    "en-US": "https://github.com/your-username/google-classroom-tweaks"
+  },
+  "support_email": {
+    "en-US": "support@example.com"
+  }
+}
