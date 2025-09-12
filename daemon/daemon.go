@@ -59,21 +59,13 @@ func sendMessage(message MessageToExtension) error {
 	return nil
 }
 
-func waitForFileAndMove(filename, fullDestinationPath string) MessageToExtension {
-	downloadsFolder, err := os.UserHomeDir()
-	if err != nil {
-		return MessageToExtension{Status: "error", Message: fmt.Sprintf("Failed to get user home directory: %v", err)}
-	}
-	downloadsFolder = filepath.Join(downloadsFolder, "Downloads") // Common Downloads folder
-
-	sourcePath := filepath.Join(downloadsFolder, filename)
-
+func waitForFileAndMove(sourceFilePath, fullDestinationPath string) MessageToExtension {
 	maxAttempts := 60 // Try for 60 * 1 second = 60 seconds
 	attempt := 0
 	var lastSize int64 = -1
 
 	for attempt < maxAttempts {
-		fileInfo, err := os.Stat(sourcePath)
+		fileInfo, err := os.Stat(sourceFilePath)
 		if err == nil { // File exists
 			currentSize := fileInfo.Size()
 			if currentSize > 0 && currentSize == lastSize {
@@ -91,9 +83,9 @@ func waitForFileAndMove(filename, fullDestinationPath string) MessageToExtension
 	}
 
 	// Final check if file exists and is not empty
-	fileInfo, err := os.Stat(sourcePath)
+	fileInfo, err := os.Stat(sourceFilePath)
 	if os.IsNotExist(err) || fileInfo.Size() == 0 {
-		return MessageToExtension{Status: "error", Message: fmt.Sprintf("File did not appear or was empty: %s", sourcePath)}
+		return MessageToExtension{Status: "error", Message: fmt.Sprintf("File did not appear or was empty: %s", sourceFilePath)}
 	}
 
 	// Ensure destination directory exists
@@ -103,17 +95,17 @@ func waitForFileAndMove(filename, fullDestinationPath string) MessageToExtension
 	}
 
 	// Always attempt copy-then-delete for robustness across file systems
-    if err := copyFile(sourcePath, fullDestinationPath); err != nil {
+    if err := copyFile(sourceFilePath, fullDestinationPath); err != nil {
         return MessageToExtension{Status: "error", Message: fmt.Sprintf("Failed to copy file: %v", err)}
     }
 
     // If copy was successful, remove the original file
-    if err := os.Remove(sourcePath); err != nil {
+    if err := os.Remove(sourceFilePath); err != nil {
         // Log a warning if removal fails, but consider the move successful if copy succeeded
-        fmt.Fprintf(os.Stderr, "Warning: Failed to remove original file %s after successful copy: %v\n", sourcePath, err)
+        fmt.Fprintf(os.Stderr, "Warning: Failed to remove original file %s after successful copy: %v\n", sourceFilePath, err)
     }
 
-	return MessageToExtension{Status: "success", MovedFrom: sourcePath, MovedTo: fullDestinationPath}
+	return MessageToExtension{Status: "success", MovedFrom: sourceFilePath, MovedTo: fullDestinationPath}
 }
 
 // copyFile is a helper for cross-device moves
