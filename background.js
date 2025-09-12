@@ -1,14 +1,12 @@
-const downloadUrlToDestinationPathMap = new Map(); // Map<downloadUrl, destinationFolderPath>
+const downloadUrlToDestinationPathMap = new Map(); // Map<downloadUrl, {destinationFolderPath, tabId}>
 
 browser.runtime.onMessage.addListener((request, sender, sendResponse) => {
   if (request.action !== 'createDownload') { return; }
 
-  // Store the mapping from download URL to destination folder path
-  downloadUrlToDestinationPathMap.set(request.downloadUrl, request.destinationFolderPath);
-
-  // Trigger the download by creating a new tab (this will trigger downloads.onCreated)
+  // Store the mapping from download URL to destination folder path and tabId
   browser.tabs.create({ url: request.downloadUrl, active: false }).then(tab => {
     console.log(`Created tab ${tab.id} for download. Associated with URL: ${request.downloadUrl}`);
+    downloadUrlToDestinationPathMap.set(request.downloadUrl, { destinationFolderPath: request.destinationFolderPath, tabId: tab.id });
   });
 });
 
@@ -18,7 +16,10 @@ browser.downloads.onCreated.addListener((downloadItem) => {
   // Check if this download URL is in our map
   if (!downloadUrlToDestinationPathMap.has(downloadItem.url)) { return; }
 
-  const destinationFolderPath = downloadUrlToDestinationPathMap.get(downloadItem.url);
+  const storedData = downloadUrlToDestinationPathMap.get(downloadItem.url);
+  const destinationFolderPath = storedData.destinationFolderPath;
+  const tabId = storedData.tabId;
+
   const fullFilenamePath = downloadItem.filename; // This is the full path from Firefox
 
   // Extract just the base filename from the full path
@@ -50,7 +51,5 @@ browser.downloads.onCreated.addListener((downloadItem) => {
   downloadUrlToDestinationPathMap.delete(downloadItem.url);
 
   // Close the tab associated with the download if it was opened by us
-  // This part needs to be handled carefully, as downloadItem.tabId might not always be the tab we created.
-  // For now, we'll assume the tab is closed by the browser after download, or we'll need a more robust tab tracking.
-  // Removed setTimeout and browser.tabs.remove for now.
+  browser.tabs.remove(tabId);
 });
