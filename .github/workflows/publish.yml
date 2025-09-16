@@ -1,0 +1,28 @@
+name: Publish to Firefox
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+
+jobs:
+  publish:
+    name: Publish to Firefox Add-ons
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: '18' # Or your desired Node.js version
+
+      - name: Install web-ext
+        run: npm install --global web-ext
+
+      - name: Sign and publish extension
+        run: web-ext sign --source-dir ./
+        env:
+          WEB_EXT_API_KEY: ${{ secrets.WEB_EXT_API_KEY }}
+          WEB_EXT_API_SECRET: ${{ secrets.WEB_EXT_API_SECRET }}

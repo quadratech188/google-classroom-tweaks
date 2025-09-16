@@ -54,9 +54,9 @@ if [ -z "$ASSET_URL" ] || [ "$ASSET_URL" == "null" ]; then
     exit 1
 fi
 
-# Download the daemon
-DAEMON_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
-DAEMON_PATH="$DAEMON_DIR/daemon"
+# Download the daemon to the same directory as the script
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
+DAEMON_PATH="$SCRIPT_DIR/daemon"
 
 echo "Downloading $ASSET_NAME to $DAEMON_PATH..."
 curl -L -o "$DAEMON_PATH" "$ASSET_URL"
