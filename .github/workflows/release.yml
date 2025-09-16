@@ -1,0 +1,75 @@
+name: Release Daemon
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+
+jobs:
+  build:
+    name: Build and Release
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up Go
+        uses: actions/setup-go@v2
+        with:
+          go-version: '1.18' # Or your desired Go version
+
+      - name: Build for Linux
+        run: |
+          cd daemon
+          GOOS=linux GOARCH=amd64 go build -o daemon-linux
+
+      - name: Build for macOS
+        run: |
+          cd daemon
+          GOOS=darwin GOARCH=amd64 go build -o daemon-macos
+
+      - name: Build for Windows
+        run: |
+          cd daemon
+          GOOS=windows GOARCH=amd64 go build -o daemon-windows.exe
+
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.ref }}
+          release_name: Release ${{ github.ref }}
+          draft: false
+          prerelease: false
+
+      - name: Upload Linux Asset
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./daemon/daemon-linux
+          asset_name: daemon-linux
+          asset_content_type: application/octet-stream
+
+      - name: Upload macOS Asset
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./daemon/daemon-macos
+          asset_name: daemon-macos
+          asset_content_type: application/octet-stream
+
+      - name: Upload Windows Asset
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./daemon/daemon-windows.exe
+          asset_name: daemon-windows.exe
+          asset_content_type: application/octet-stream
