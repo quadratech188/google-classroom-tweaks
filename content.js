@@ -68,9 +68,13 @@ function debounce(func, wait) {
 }
 
 function processPage() {
-  const containers = document.querySelectorAll('div.luto0c:not(.has-download-button), div.t2wIBc:not(.has-download-button)');
+  const containers = document.querySelectorAll('div.luto0c, div.t2wIBc');
   containers.forEach(container => {
-    container.classList.add('has-download-button');
+    // Check if a button has already been added
+    if (container.querySelector('.my-custom-button')) {
+      return;
+    }
+
     let link = null;
     const allElements = container.querySelectorAll('*'); // Select all descendant elements
     for (const element of allElements) {
@@ -82,11 +86,16 @@ function processPage() {
 
     if (!link) { return; }
 
-    const button = document.createElement('button');
-    button.textContent = 'Download';
-    button.classList.add('my-custom-button');
+    const classroomDownloadButton = document.createElement('button');
+    classroomDownloadButton.textContent = 'Download to Classroom Folder';
+    classroomDownloadButton.classList.add('my-custom-button');
+    classroomDownloadButton.style.all = 'unset';
+    classroomDownloadButton.style.color = 'blue';
+    classroomDownloadButton.style.textDecoration = 'underline';
+    classroomDownloadButton.style.cursor = 'pointer';
+    classroomDownloadButton.style.fontFamily = 'monospace';
 
-    button.addEventListener('click', () => {
+    classroomDownloadButton.addEventListener('click', () => {
       const downloadUrl = transformGoogleDriveUrl(link.href);
       const match = window.location.pathname.match(/\/c\/([a-zA-Z0-9_-]+)/);
       const classroomId = match ? match[1] : null;
@@ -94,7 +103,24 @@ function processPage() {
         onDownloadClick(downloadUrl, classroomId);
       }
     });
-    container.appendChild(button);
+
+    const directDownloadButton = document.createElement('button');
+    directDownloadButton.textContent = 'Direct Download';
+    directDownloadButton.classList.add('my-custom-button');
+    directDownloadButton.style.all = 'unset';
+    directDownloadButton.style.color = 'blue';
+    directDownloadButton.style.textDecoration = 'underline';
+    directDownloadButton.style.cursor = 'pointer';
+    directDownloadButton.style.fontFamily = 'monospace';
+    directDownloadButton.style.marginLeft = '10px';
+
+    directDownloadButton.addEventListener('click', () => {
+      const downloadUrl = transformGoogleDriveUrl(link.href);
+      window.open(downloadUrl, '_blank');
+    });
+
+    container.appendChild(classroomDownloadButton);
+    container.appendChild(directDownloadButton);
   });
 }
 
