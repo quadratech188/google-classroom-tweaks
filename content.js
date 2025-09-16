@@ -112,15 +112,15 @@ function processPage() {
     directDownloadButton.style.textDecoration = 'underline';
     directDownloadButton.style.cursor = 'pointer';
     directDownloadButton.style.fontFamily = 'monospace';
-    directDownloadButton.style.marginLeft = '10px';
+    directDownloadButton.style.marginRight = '10px';
 
     directDownloadButton.addEventListener('click', () => {
       const downloadUrl = transformGoogleDriveUrl(link.href);
-      window.open(downloadUrl, '_blank');
+      browser.runtime.sendMessage({ action: 'directDownload', downloadUrl: downloadUrl });
     });
 
-    container.appendChild(classroomDownloadButton);
     container.appendChild(directDownloadButton);
+    container.appendChild(classroomDownloadButton);
   });
 }
 

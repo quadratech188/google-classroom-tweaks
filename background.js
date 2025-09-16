@@ -1,13 +1,15 @@
 const downloadUrlToDestinationPathMap = new Map(); // Map<downloadUrl, {destinationFolderPath, tabId}>
 
 browser.runtime.onMessage.addListener((request, sender, sendResponse) => {
-  if (request.action !== 'createDownload') { return; }
-
-  // Store the mapping from download URL to destination folder path and tabId
-  browser.tabs.create({ url: request.downloadUrl, active: false }).then(tab => {
-    console.log(`Created tab ${tab.id} for download. Associated with URL: ${request.downloadUrl}`);
-    downloadUrlToDestinationPathMap.set(request.downloadUrl, { destinationFolderPath: request.destinationFolderPath, tabId: tab.id });
-  });
+  if (request.action === 'createDownload') {
+    // Store the mapping from download URL to destination folder path and tabId
+    browser.tabs.create({ url: request.downloadUrl, active: false }).then(tab => {
+      console.log(`Created tab ${tab.id} for download. Associated with URL: ${request.downloadUrl}`);
+      downloadUrlToDestinationPathMap.set(request.downloadUrl, { destinationFolderPath: request.destinationFolderPath, tabId: tab.id });
+    });
+  } else if (request.action === 'directDownload') {
+    browser.tabs.create({ url: request.downloadUrl, active: false });
+  }
 });
 
 browser.downloads.onCreated.addListener((downloadItem) => {
