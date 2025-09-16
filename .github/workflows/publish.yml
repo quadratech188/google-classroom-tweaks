@@ -22,7 +22,4 @@ jobs:
         run: npm install --global web-ext
 
       - name: Sign and publish extension
-        run: web-ext sign --source-dir ./
-        env:
-          WEB_EXT_API_KEY: ${{ secrets.WEB_EXT_API_KEY }}
-          WEB_EXT_API_SECRET: ${{ secrets.WEB_EXT_API_SECRET }}
+        run: web-ext sign --source-dir ./ --amo-metadata=metadata.json --channel=listed --api-key=${{ secrets.WEB_EXT_API_KEY }} --api-secret=${{ secrets.WEB_EXT_API_SECRET }}
